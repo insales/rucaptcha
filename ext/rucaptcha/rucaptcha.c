@@ -160,7 +160,7 @@ void captcha(unsigned char im[70*200], unsigned char l[6]) {
   read(f,l,5); read(f,swr,200); read(f,dr,sizeof(dr)); read(f,&s1,1); read(f,&s2,1);
   close(f);
 
-  memset(im,0xff,200*70); s1=s1&0x7f; s2=s2&0x3f; l[0]%=25; l[1]%=25; l[2]%=25; l[3]%=25; l[4]%=25; l[5]=0;
+  memset(im,0xff,200*70); s1=s1&0x7f; s2=s2&0x3f; l[0]%=9; l[1]%=9; l[2]%=9; l[3]%=9; l[4]%=9; l[5]=0;
   int p=30; p=letter(l[0],p,im,swr,s1,s2); p=letter(l[1],p,im,swr,s1,s2); p=letter(l[2],p,im,swr,s1,s2); p=letter(l[3],p,im,swr,s1,s2); letter(l[4],p,im,swr,s1,s2);
   line(im,swr,s1); dots(im); // blur(im); // filter(im);
   l[0]=letters[l[0]]; l[1]=letters[l[1]]; l[2]=letters[l[2]]; l[3]=letters[l[3]]; l[4]=letters[l[4]];
