@@ -75,6 +75,24 @@ describe RuCaptcha do
         expect(simple.verify_rucaptcha?).to eq(true)
       end
 
+      it 'should work with alternative param' do
+        RuCaptcha.cache.write(simple.rucaptcha_sesion_key_key, {
+          time: Time.now.to_i,
+          code: 'abcd'
+        })
+        param_name = :_captcha_solution
+        simple.params[param_name] = 'Abcd'
+        expect(simple.verify_rucaptcha?(nil, param_name: param_name)).to eq(true)
+        expect(simple.custom_session).to eq nil
+
+        RuCaptcha.cache.write(simple.rucaptcha_sesion_key_key, {
+          time: Time.now.to_i,
+          code: 'abcd'
+        })
+        simple.params[param_name] = 'AbcD'
+        expect(simple.verify_rucaptcha?(nil, param_name: param_name)).to eq(true)
+      end
+
       it 'should keep session when given :keep_session' do
         RuCaptcha.cache.write(simple.rucaptcha_sesion_key_key, {
           time: Time.now.to_i,
@@ -88,7 +106,7 @@ describe RuCaptcha do
       end
     end
 
-    describe 'Incorrect chars' do
+    context 'Incorrect chars' do
       it 'should work' do
         RuCaptcha.cache.write(simple.rucaptcha_sesion_key_key, {
           time: Time.now.to_i - 60,
@@ -100,7 +118,7 @@ describe RuCaptcha do
       end
     end
 
-    describe 'Expires Session key' do
+    context 'Expires Session key' do
       it 'should work' do
         RuCaptcha.cache.write(simple.rucaptcha_sesion_key_key, {
           time: Time.now.to_i - 121,

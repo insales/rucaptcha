@@ -52,8 +52,9 @@ module RuCaptcha
         return add_rucaptcha_validation_error
       end
 
-      # Make sure parama have captcha
-      captcha = (params[:_rucaptcha] || '').downcase.strip
+      # Make sure params have captcha
+      param_name = opts[:param_name] || :_rucaptcha
+      captcha = (params[param_name] || '').downcase.strip
       if captcha.blank?
         return add_rucaptcha_validation_error
       end
