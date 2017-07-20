@@ -44,23 +44,23 @@ module RuCaptcha
 
       # Make sure session exist
       if store_info.blank?
-        return add_rucaptcha_validation_error
+        return add_rucaptcha_validation_error resource, opts
       end
 
       # Make sure not expire
       if (Time.now.to_i - store_info[:time]) > RuCaptcha.config.expires_in
-        return add_rucaptcha_validation_error
+        return add_rucaptcha_validation_error resource, opts
       end
 
       # Make sure params have captcha
       param_name = opts[:param_name] || :_rucaptcha
       captcha = (params[param_name] || '').downcase.strip
       if captcha.blank?
-        return add_rucaptcha_validation_error
+        return add_rucaptcha_validation_error resource, opts, :empty
       end
 
       if captcha != store_info[:code]
-        return add_rucaptcha_validation_error
+        return add_rucaptcha_validation_error resource, opts
       end
 
       true
@@ -68,10 +68,10 @@ module RuCaptcha
 
     private
 
-    def add_rucaptcha_validation_error
-      if defined?(resource) && resource && resource.respond_to?(:errors)
-        resource.errors.add(:base, t('rucaptcha.invalid'))
-      end
+    def add_rucaptcha_validation_error resource, opts, error = :invalid
+      return false if resource.nil? || !resource.respond_to?(:errors)
+      error_field = opts[:error_field] || :base
+      resource.errors.add(error_field, error)
       false
     end
   end
