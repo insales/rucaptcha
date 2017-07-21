@@ -14,11 +14,13 @@ module RuCaptcha
     def rucaptcha_image_tag(opts = {})
       opts[:class] = opts[:class] || 'rucaptcha-image'
       opts[:id] = opts[:id] || 'rucaptcha_image'
-      image_tag(ru_captcha.root_url, opts)
+      ru_captcha_url = opts.delete(:captcha_url) || ru_captcha.root_url
+      image_tag(ru_captcha_url, opts)
     end
 
     def rucaptcha_regenerate_image_link(text, image_tag_id = 'rucaptcha_image', opts  = {})
-      onclick = "document.getElementById('#{image_tag_id}').src = '#{ru_captcha.root_url}?' + new Date().getTime();"
+      ru_captcha_url = opts.delete(:captcha_url) || ru_captcha.root_url
+      onclick = "document.getElementById('#{image_tag_id}').src = '#{ru_captcha_url}?' + new Date().getTime();"
       link_to text, 'javascript:void(0)', opts.merge(onclick: onclick)
     end
   end
