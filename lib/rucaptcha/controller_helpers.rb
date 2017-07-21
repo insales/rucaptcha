@@ -36,8 +36,13 @@ module RuCaptcha
     #   verify_rucaptcha?(nil, keep_session: true)
     #
     def verify_rucaptcha?(resource = nil, opts = {})
-      opts ||= {}
+      # Make sure params have captcha
+      param_name = opts[:param_name] || :_rucaptcha
+      captcha = (params[param_name] || '').downcase.strip
+      verify_rucaptcha_value?(captcha, resource, opts)
+    end
 
+    def verify_rucaptcha_value?(captcha, resource = nil, opts = {})
       store_info = RuCaptcha.cache.read(rucaptcha_sesion_key_key)
       # make sure move used key
       RuCaptcha.cache.delete(rucaptcha_sesion_key_key) unless opts[:keep_session]
@@ -53,8 +58,6 @@ module RuCaptcha
       end
 
       # Make sure params have captcha
-      param_name = opts[:param_name] || :_rucaptcha
-      captcha = (params[param_name] || '').downcase.strip
       if captcha.blank?
         return add_rucaptcha_validation_error resource, opts, :empty
       end
@@ -65,6 +68,7 @@ module RuCaptcha
 
       true
     end
+
 
     private
 
