@@ -19,6 +19,8 @@ module RuCaptcha
         code: res[0],
         time: Time.now.to_i
       }
+      puts '!' * 50
+      puts rucaptcha_sesion_key_key
       RuCaptcha.cache.write(rucaptcha_sesion_key_key, session_val, expires_in: RuCaptcha.config.expires_in)
       res[1]
     end
