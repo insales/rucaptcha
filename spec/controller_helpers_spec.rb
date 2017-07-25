@@ -2,16 +2,16 @@ require 'spec_helper'
 require 'securerandom'
 
 describe RuCaptcha do
-  class CustomSession
-    attr_accessor :id
-
-    def initialize
-      self.id = SecureRandom.hex
+  class CustomCookies < Hash
+    def [] key
+      value = super key
+      value = value[:value] if value.is_a? Hash
+      value
     end
   end
   class Simple < ActionController::Base
-    def session
-      @session ||= CustomSession.new
+    def cookies
+      @cookies ||= CustomCookies.new
     end
 
     def params
@@ -31,7 +31,8 @@ describe RuCaptcha do
 
   describe '.rucaptcha_sesion_key_key' do
     it 'should work' do
-      expect(simple.rucaptcha_sesion_key_key).to eq ['rucaptcha-session', simple.session.id].join(':')
+      simple.generate_rucaptcha
+      expect(simple.rucaptcha_sesion_key_key).to eq ['rucaptcha-session', simple.cookies[:c_id]].join(':')
     end
   end
 
@@ -44,6 +45,8 @@ describe RuCaptcha do
   end
 
   describe '.verify_rucaptcha?' do
+    before { simple.generate_rucaptcha }
+
     context 'Nil of param' do
       it 'should work when params[:_rucaptcha] is nil' do
         simple.params[:_rucaptcha] = nil
