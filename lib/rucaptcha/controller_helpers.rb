@@ -15,9 +15,10 @@ module RuCaptcha
 
     # Generate a new Captcha
     def generate_rucaptcha
+      RuCaptcha.cache.delete(rucaptcha_sesion_key_key) if rucaptcha_sesion_key_key
+      cookies[:c_id] = { value: SecureRandom.hex, expires:  RuCaptcha.config.expires_in.from_now }
+
       res = RuCaptcha.generate()
-      session_id = SecureRandom.hex
-      cookies[:c_id] = { value: session_id, expires:  RuCaptcha.config.expires_in.from_now }
       session_val = {
         code: res[0],
         time: Time.now.to_i
