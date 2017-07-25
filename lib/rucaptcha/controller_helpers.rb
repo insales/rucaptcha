@@ -8,13 +8,16 @@ module RuCaptcha
 
     # session key of rucaptcha
     def rucaptcha_sesion_key_key
-      session_id = session.respond_to?(:id) ? session.id : session[:session_id] || request.session_options[:id]
+      session_id = cookies[:c_id]
+      return unless session_id
       ['rucaptcha-session', session_id].join(':')
     end
 
     # Generate a new Captcha
     def generate_rucaptcha
       res = RuCaptcha.generate()
+      session_id = SecureRandom.hex
+      cookies[:c_id] = { value: session_id, expires:  RuCaptcha.config.expires_in.from_now }
       session_val = {
         code: res[0],
         time: Time.now.to_i
@@ -43,6 +46,10 @@ module RuCaptcha
     end
 
     def verify_rucaptcha_value?(captcha, resource = nil, opts = {})
+      if rucaptcha_sesion_key_key.blank?
+        return add_rucaptcha_validation_error resource, opts
+      end
+
       store_info = RuCaptcha.cache.read(rucaptcha_sesion_key_key)
       # make sure move used key
       RuCaptcha.cache.delete(rucaptcha_sesion_key_key) unless opts[:keep_session]
